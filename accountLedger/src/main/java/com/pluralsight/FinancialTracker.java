@@ -1,12 +1,17 @@
 package com.pluralsight;
 
+import com.pluralsight.Transaction;
+
+import java.io.*;
+
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class FinancialTracker {
-
+    private static Scanner scanner = new Scanner(System.in);
     private static ArrayList<Transaction> transactions = new ArrayList<Transaction>();
     private static final String FILE_NAME = "transactions.csv";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -14,9 +19,9 @@ public class FinancialTracker {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(TIME_FORMAT);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         loadTransactions(FILE_NAME);
-        Scanner scanner = new Scanner(System.in);
+
         boolean running = true;
 
         while (running) {
@@ -60,6 +65,61 @@ public class FinancialTracker {
         // For example: 2023-04-29,13:45:00,Amazon,PAYMENT,29.99
         // After reading all the transactions, the file should be closed.
         // If any errors occur, an appropriate error message should be displayed.
+
+        try {
+            // Create a File object with the specified 'fileName'
+            File myFile = new File(fileName);
+
+            // Check if the file doesn't exist and create it if necessary
+            if (myFile.createNewFile()) {
+                System.out.println("Inventory does not exist! Creating file...\n");
+            } else {
+                System.out.println("Inventory loaded!\n");
+            }
+        } catch (IOException e) {
+            // Handle any IOException that may occur during file creation
+            System.out.println("ERROR: Could not run file creation!");
+        }
+
+        try {
+            // Create a BufferedReader to read from the specified file (assumed 'fileName' contains the file path)
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName));
+
+            // Skip the first line assuming it's a header or not needed
+            bufferedReader.readLine();
+
+            // Read lines from the file until the end is reached
+            String input;
+            while ((input = bufferedReader.readLine()) != null) {
+                // Split the input line using the '|' delimiter
+                String[] tokens = input.split("\\|");
+
+                // Extract and parse data from the split tokens
+                String date = tokens[0];
+                LocalDate realDate = LocalDate.parse(date);
+                String time = tokens[1];
+                LocalTime realTime = LocalTime.parse(time);
+                String description = tokens[2];
+                String vendor = tokens[3];
+                float price = Float.parseFloat(tokens[4]);
+
+                // Create a new Transaction object with the parsed data
+                Transaction loadTransactions = new Transaction(realDate, realTime, description, vendor, price);
+
+                // Add the Transaction object to the 'transactions' list
+                transactions.add(loadTransactions);
+            }
+
+            // Close the BufferedReader to free resources
+            bufferedReader.close();
+
+        } catch (Exception ex) {
+            // Handle any exceptions that may occur during the file reading or parsing
+            System.out.println("Error!");
+        }
+
+
+
     }
 
     private static void addDeposit(Scanner scanner) {
@@ -68,6 +128,10 @@ public class FinancialTracker {
         // The amount should be a positive number.
         // After validating the input, a new `Deposit` object should be created with the entered values.
         // The new deposit should be added to the `transactions` ArrayList.
+
+
+
+
     }
 
     private static void addPayment(Scanner scanner) {
