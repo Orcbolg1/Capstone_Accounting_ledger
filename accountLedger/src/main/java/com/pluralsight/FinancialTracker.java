@@ -7,6 +7,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -27,7 +28,7 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            System.out.println(BLACK_BOLD_BRIGHT + "Welcome to TransactionApp");
+            System.out.println(WHITE_BOLD_BRIGHT + "Welcome to TransactionApp");
             System.out.println("Choose an option:");
             System.out.println("D) Add Deposit");
             System.out.println("P) Make Payment (Debit)");
@@ -84,7 +85,8 @@ public class FinancialTracker {
             }
         } catch (IOException e) {
             // Handle any IOException that may occur during file creation
-            System.out.println("ERROR: Could not run file creation!");
+            System.out.println(ANSI_RED_BACKGROUND  + "ERROR: Could not run file creation!");
+            System.out.println("=====================================================");
         }
 
         try {
@@ -107,7 +109,7 @@ public class FinancialTracker {
                 LocalTime realTime = LocalTime.parse(time);
                 String description = tokens[2];
                 String vendor = tokens[3];
-                float price = Float.parseFloat(tokens[4]);
+                double price = Double.parseDouble(tokens[4]);
 
                 // Create a new Transaction object with the parsed data
                 Transaction loadTransactions = new Transaction(realDate, realTime, description, vendor, price);
@@ -122,6 +124,7 @@ public class FinancialTracker {
         } catch (Exception ex) {
             // Handle any exceptions that may occur during the file reading or parsing
             System.out.println("Error!");
+            System.out.println("=====================================================");
         }
     }
 
@@ -136,15 +139,18 @@ public class FinancialTracker {
             // Create a BufferedWriter to write to the specified file (assumed FILE_NAME contains the file path)
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME, true));
 
+
             // Prompt the user to enter the date in the specified format and parse it
             System.out.println(WHITE_BOLD_BRIGHT +  "Please enter the date in this format: (yyyy-MM-dd)");
             String inputD = scanner.nextLine();
-            LocalDate realDate = LocalDate.parse(inputD, DATE_FORMATTER);
+            LocalDate realDate = parseUserInputDate(inputD);
+            System.out.println(realDate);
 
             // Prompt the user to enter the time in the specified format and parse it
-            System.out.println(BLACK_BOLD_BRIGHT + "Please enter the time of the deposit in this format: (HH:mm:ss)");
+            System.out.println(WHITE_BOLD_BRIGHT + "Please enter the time of the deposit in this format: (HH:mm:ss)");
             String inputT = scanner.nextLine();
-            LocalTime realTime = LocalTime.parse(inputT, TIME_FORMATTER);
+            LocalTime realTime = parseUserInputTime(inputT);
+            System.out.println(realTime);
 
             // Prompt the user to enter the name of the vendor
             System.out.println("Please enter the name of the vendor: ");
@@ -152,16 +158,17 @@ public class FinancialTracker {
 
             // Prompt the user to enter the amount to deposit and validate it
             System.out.println("Please enter the amount you'd like to deposit: $");
-            float depositFloat = scanner.nextFloat();
+            double depositDouble = scanner.nextDouble();
             scanner.nextLine();
 
             // Check if the deposit amount is negative and handle the error
-            if (depositFloat < 0) {
+            if (depositDouble < 0) {
                 System.out.println("Error: You have entered an incorrect amount.");
+                System.out.println("=====================================================");
             }
 
             // Create a Transaction object with the entered data
-            Transaction deposit = new Transaction(realDate, realTime, vendor, depositFloat);
+            Transaction deposit = new Transaction(realDate, realTime, vendor, depositDouble);
 
             // Add the Transaction object to the 'transactions' list
             transactions.add(deposit);
@@ -178,7 +185,7 @@ public class FinancialTracker {
 
         } catch (Exception ex) {
             // Handle any exceptions that may occur during input, writing, or parsing
-            System.out.println("Error!");
+            System.out.println(ANSI_RED_BACKGROUND + "Error!");
         }
     }
 
@@ -194,14 +201,16 @@ public class FinancialTracker {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(FILE_NAME, true));
 
             // Prompt the user to enter the date in the specified format and parse it
-            System.out.println(BLACK_BOLD_BRIGHT + "Please enter the date of the payment in this format: (yyyy-MM-dd)");
+            System.out.println(WHITE_BOLD_BRIGHT + "Please enter the date of the payment in this format: (yyyy-MM-dd)");
             String inputD = scanner.nextLine();
-            LocalDate date = LocalDate.parse(inputD, DATE_FORMATTER);
+            LocalDate realDate = parseUserInputDate(inputD);
+            System.out.println(realDate);
 
             // Prompt the user to enter the time in the specified format and parse it
-            System.out.println(BLACK_BOLD_BRIGHT + "Please enter the time of the payment in this format: (HH:mm:ss)");
+            System.out.println(WHITE_BOLD_BRIGHT + "Please enter the time of the payment in this format: (HH:mm:ss)");
             String inputT = scanner.nextLine();
-            LocalTime time = LocalTime.parse(inputT, TIME_FORMATTER);
+            LocalTime realTime = parseUserInputTime(inputT);
+            System.out.println(realTime);
 
             // Prompt the user to enter the name of the vendor
             System.out.println("Please enter the name of the vendor: ");
@@ -209,16 +218,17 @@ public class FinancialTracker {
 
             // Prompt the user to enter the amount to deposit and validate it
             System.out.println("Please enter the amount you'd like to pay: $");
-            float paymentFloat = scanner.nextFloat();
+            double paymentdouble = scanner.nextDouble();
             scanner.nextLine();
 
             // Check if the deposit amount is negative and handle the error
-            if (paymentFloat < 0) {
+            if (paymentdouble < 0) {
                 System.out.println("Error: You have entered an incorrect amount.");
+                System.out.println("=====================================================");
             }
 
             // Create a Transaction object with the entered data
-            Transaction payment = new Transaction(date, time, vendor, paymentFloat);
+            Transaction payment = new Transaction(realDate, realTime, vendor, paymentdouble);
 
             // Add the Transaction object to the 'transactions' list
             transactions.add(payment);
@@ -235,14 +245,15 @@ public class FinancialTracker {
 
         } catch (Exception ex) {
             // Handle any exceptions that may occur during input, writing, or parsing
-            System.out.println("Error!");
+            System.out.println(ANSI_RED_BACKGROUND + "Error!");
+            System.out.println("=====================================================");
         }
     }
 
     private static void ledgerMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("Ledger");
+            System.out.println(WHITE_BOLD_BRIGHT+ "Ledger");
             System.out.println("Choose an option:");
             System.out.println("A) All");
             System.out.println("D) Deposits");
@@ -296,7 +307,7 @@ public class FinancialTracker {
         }
 
         if(potato.isEmpty()){
-            System.out.println("Error! There is no deposits found!");
+            System.out.println(ANSI_RED_BACKGROUND + WHITE_BOLD_BRIGHT + "Error! There is no deposits found!");
         }else{
             for(Transaction transaction : potato){
                 System.out.println(transaction);
@@ -316,7 +327,7 @@ public class FinancialTracker {
         }
 
         if(potato.isEmpty()){
-            System.out.println("Error! There is no payments found!");
+            System.out.println(ANSI_RED_BACKGROUND + WHITE_BOLD_BRIGHT + "Error! There is no payments found!");
         }else{
             for(Transaction transaction : potato){
                 System.out.println(transaction);
@@ -328,7 +339,7 @@ public class FinancialTracker {
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("Reports");
+            System.out.println(WHITE_BOLD_BRIGHT + "Reports");
             System.out.println("Choose an option:");
             System.out.println("1) Month To Date");
             System.out.println("2) Previous Month");
@@ -344,14 +355,14 @@ public class FinancialTracker {
                     // Generate a report for all transactions within the current month,
                     // including the date, vendor, and amount for each transaction.
                     LocalDate thisMonth = LocalDate.now();
-                    System.out.println("Displaying all transactions for the month of " + thisMonth.getMonth() + ": ");
+                    System.out.println("Displaying all the transactions for this month of " + thisMonth.getMonth() + ": ");
                     filterTransactionsByDate(thisMonth.withDayOfMonth(1), thisMonth);
                     break;
                 case "2":
                     // Generate a report for all transactions within the previous month,
                     // including the date, vendor, and amount for each transaction.
                     LocalDate lastMonth = LocalDate.now().minusMonths(1);
-                    System.out.println("Displaying all transactions for the month of " + lastMonth.getMonth() + ": ");
+                    System.out.println("Displaying all the transactions for this month of " + lastMonth.getMonth() + ": ");
                     filterTransactionsByDate(lastMonth.withDayOfMonth(1), lastMonth.withDayOfMonth(lastMonth.lengthOfMonth()));
                     break;
                 case "3":
@@ -378,7 +389,7 @@ public class FinancialTracker {
                     running = false;
                 default:
                     // Handle invalid option
-                    System.out.println("Invalid option");
+                    System.out.println(ANSI_RED_BACKGROUND + "Error!");
                     break;
             }
         }
@@ -396,7 +407,7 @@ public class FinancialTracker {
             }
         }
         if (found.isEmpty()) {
-            System.out.println("ERROR: No transactions found with given date range!");
+            System.out.println(ANSI_RED_BACKGROUND  + "ERROR!");
         } else {
             for (Transaction transaction : found) {
                 System.out.println(transaction);
@@ -414,11 +425,30 @@ public class FinancialTracker {
             }
         }
         if (found.isEmpty()) {
-            System.out.println("ERROR: No transactions found with given vendor!");
+            System.out.println(ANSI_RED_BACKGROUND + "ERROR!");
         } else {
             for (Transaction transaction : found) {
                 System.out.println(transaction);
             }
+        }
+    }
+    // Helper method to parse user input for date, handling errors
+    private static LocalDate parseUserInputDate(String userInput) {
+        try {
+            return LocalDate.parse(userInput, DATE_FORMATTER);
+        } catch (DateTimeParseException ex) {
+            System.out.println("Invalid date format. Using current date instead.");
+            return LocalDate.now();
+        }
+    }
+
+    // Helper method to parse user input for time, handling errors
+    private static LocalTime parseUserInputTime(String userInput) {
+        try {
+            return LocalTime.parse(userInput, TIME_FORMATTER);
+        } catch (DateTimeParseException ex) {
+            System.out.println("Invalid time format. Using current time instead.");
+            return LocalTime.now();
         }
     }
 }

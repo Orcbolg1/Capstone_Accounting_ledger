@@ -10,9 +10,9 @@ public class Transaction {
     private String description;
     private String vendor;
 
-    private float price;
+    private double price;
 
-    public Transaction(LocalDate date, LocalTime time, String description, String vendor, float price) {
+    public Transaction(LocalDate date, LocalTime time, String description, String vendor, double price) {
         this.date = date;
         this.time = time;
         this.description = description;
@@ -20,7 +20,7 @@ public class Transaction {
         this.price = price;
     }
 
-    public Transaction(LocalDate realDate, LocalTime realTime, String vendor, float depositFloat) {
+    public Transaction(LocalDate realDate, LocalTime realTime, String vendor, double depositFloat) {
     }
 
     public LocalDate getDate() {
@@ -55,7 +55,7 @@ public class Transaction {
         this.vendor = vendor;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
 
