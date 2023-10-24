@@ -5,8 +5,8 @@ import java.time.LocalTime;
 
 public class Transaction {
 
-    private String date;
-    private String time;
+    private LocalDate date;
+    private LocalTime time;
     private String description;
     private String vendor;
 
@@ -20,19 +20,22 @@ public class Transaction {
         this.price = price;
     }
 
-    public String getDate() {
+    public Transaction(LocalDate realDate, LocalTime realTime, String vendor, float depositFloat) {
+    }
+
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
-    public String getTime() {
+    public LocalTime getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(LocalTime time) {
         this.time = time;
     }
 
