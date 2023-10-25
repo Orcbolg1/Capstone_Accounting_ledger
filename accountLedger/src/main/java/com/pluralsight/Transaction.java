@@ -20,8 +20,8 @@ public class Transaction {
         this.price = price;
     }
 
-    public Transaction(LocalDate realDate, LocalTime realTime, String vendor, double depositFloat) {
-    }
+//    public Transaction(LocalDate realDate, LocalTime realTime, String vendor, double depositFloat) {
+//    }
 
     public LocalDate getDate() {
         return date;
@@ -73,4 +73,6 @@ public class Transaction {
                 ", price=" + price +
                 '}';
     }
+
+
 }
