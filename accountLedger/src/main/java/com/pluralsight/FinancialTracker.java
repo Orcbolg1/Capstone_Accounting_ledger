@@ -1,7 +1,5 @@
 package com.pluralsight;
 
-import com.pluralsight.Transaction;
-
 import java.io.*;
 
 import java.time.LocalDate;
@@ -10,6 +8,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Collections;
+import java.util.Comparator;
+
 
 import static com.pluralsight.Colors.*;
 
@@ -28,8 +29,8 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            System.out.println(WHITE_BOLD_BRIGHT + "Welcome to TransactionApp");
-            System.out.println("Choose an option:");
+            System.out.println(CYAN_BOLD_BRIGHT + "[ ======== [Welcome to TransactionApp] ======== ]" + "\u001B[0m");
+            System.out.println(WHITE_BOLD_BRIGHT + "Choose an option:");
             System.out.println("D) Add Deposit");
             System.out.println("P) Make Payment (Debit)");
             System.out.println("L) Ledger");
@@ -52,10 +53,12 @@ public class FinancialTracker {
                     ledgerMenu(scanner);
                     break;
                 case "X":
+                    System.out.println("GoodBye!");
                     running = false;
                     break;
                 default:
-                    System.out.println("Invalid option");
+                    System.out.println(ANSI_RED_BACKGROUND+ "Invalid option" +  "\u001B[0m");
+                    System.out.println("============================");
                     break;
             }
         }
@@ -81,11 +84,11 @@ public class FinancialTracker {
             if (myFile.createNewFile()) {
                 System.out.println("Inventory does not exist! Creating file...\n");
             } else {
-              //  System.out.println("Inventory loaded!\n");
+
             }
         } catch (IOException e) {
             // Handle any IOException that may occur during file creation
-            System.out.println(ANSI_RED_BACKGROUND  + "ERROR: Could not run file creation!");
+            System.out.println(ANSI_RED_BACKGROUND  + "ERROR: Could not run file creation!" +  "\u001B[0m");
             System.out.println("=====================================================");
         }
 
@@ -123,7 +126,7 @@ public class FinancialTracker {
 
         } catch (Exception ex) {
             // Handle any exceptions that may occur during the file reading or parsing
-            System.out.println("Error!");
+            //System.out.println(ANSI_RED_BACKGROUND + "Error!" +  "\u001B[0m");
             System.out.println("=====================================================");
         }
     }
@@ -153,28 +156,34 @@ public class FinancialTracker {
             System.out.println(realTime);
 
             // Prompt the user to enter the name of the vendor
-            System.out.println("Please enter the name of the vendor: ");
+            System.out.println(WHITE_BOLD_BRIGHT + "Please enter the name of the vendor: ");
             String vendor = scanner.nextLine();
 
+            // Prompt the user to give a description of the item they are buying
+            System.out.println("Please enter the Description of the item: ");
+            String description = scanner.nextLine();
+
+
             // Prompt the user to enter the amount to deposit and validate it
-            System.out.println("Please enter the amount you'd like to deposit: $");
+            System.out.println(WHITE_BOLD_BRIGHT + "Please enter the amount you'd like to deposit: $" + "\u001B[0m");
             double depositDouble = scanner.nextDouble();
             scanner.nextLine();
 
             // Check if the deposit amount is negative and handle the error
             if (depositDouble < 0) {
-                System.out.println("Error: You have entered an incorrect amount.");
+                System.out.println(ANSI_RED_BACKGROUND + "Error: You have entered an incorrect amount." +  "\u001B[0m");
                 System.out.println("=====================================================");
             }
 
             // Create a Transaction object with the entered data
-            Transaction deposit = new Transaction(realDate, realTime, vendor, depositDouble);
+            Transaction deposit = new Transaction(realDate, realTime, description, vendor, depositDouble);
 
             // Add the Transaction object to the 'transactions' list
             transactions.add(deposit);
 
             // Format the transaction data for writing to the file
-            String display = "\n" + deposit.getDate() + "|" + deposit.getTime() + "|" + deposit.getVendor() + "|"
+            String display = "\n" + deposit.getDate() + "|" + deposit.getTime() + "|" + deposit.getDescription() + "|"
+                    + deposit.getVendor() + "|"
                     + deposit.getPrice();
 
             // Write the formatted data to the file
@@ -182,10 +191,11 @@ public class FinancialTracker {
 
             // Close the BufferedWriter to save the changes to the file
             bufferedWriter.close();
-
+            System.out.println(GREEN_BOLD_BRIGHT + "Your Deposit transaction has been added!" + "\u001B[0m");
         } catch (Exception ex) {
             // Handle any exceptions that may occur during input, writing, or parsing
-            System.out.println(ANSI_RED_BACKGROUND + "Error!");
+            System.out.println(ANSI_RED_BACKGROUND + "Error!"  + "\u001B[0m");
+            System.out.println("=====================================================");
         }
     }
 
@@ -213,39 +223,44 @@ public class FinancialTracker {
             System.out.println(realTime);
 
             // Prompt the user to enter the name of the vendor
-            System.out.println("Please enter the name of the vendor: ");
+            System.out.println(WHITE_BOLD_BRIGHT + "Please enter the name of the vendor: ");
             String vendor = scanner.nextLine();
 
+            // Prompt the user to give a description of the item they are buying
+            System.out.println("Please enter the Description of the item: ");
+            String description = scanner.nextLine();
+
             // Prompt the user to enter the amount to deposit and validate it
-            System.out.println("Please enter the amount you'd like to pay: $");
-            double paymentdouble = scanner.nextDouble();
+            System.out.println(WHITE_BOLD_BRIGHT+ "Please enter the amount you'd owe to pay (-): $" + "\u001B[0m");
+            double paymentDouble = scanner.nextDouble();
             scanner.nextLine();
 
             // Check if the deposit amount is negative and handle the error
-            if (paymentdouble < 0) {
-                System.out.println("Error: You have entered an incorrect amount.");
+            if (paymentDouble > 0) {
+                System.out.println(ANSI_RED_BACKGROUND + "Error: You have entered an incorrect amount." +  "\u001B[0m");
                 System.out.println("=====================================================");
             }
 
             // Create a Transaction object with the entered data
-            Transaction payment = new Transaction(realDate, realTime, vendor, paymentdouble);
+            Transaction payment = new Transaction(realDate, realTime, description,  vendor, paymentDouble);
 
             // Add the Transaction object to the 'transactions' list
             transactions.add(payment);
 
             // Format the transaction data for writing to the file
-            String display = "\n" + payment.getDate() + "|" + payment.getTime() + "|" + payment.getVendor() + "|"
-                    + payment.getPrice();
+            String display = "\n" + payment.getDate() + "|" + payment.getTime() + "|" + payment.getDescription() + "|"
+                    + payment.getVendor() + "|"
+                    + "-" + payment.getPrice();
 
             // Write the formatted data to the file
             bufferedWriter.write(display);
 
             // Close the BufferedWriter to save the changes to the file
             bufferedWriter.close();
-
+            System.out.println(GREEN_BOLD_BRIGHT + "Your Payment transaction has been added!" + "\u001B[0m");
         } catch (Exception ex) {
             // Handle any exceptions that may occur during input, writing, or parsing
-            System.out.println(ANSI_RED_BACKGROUND + "Error!");
+            System.out.println(ANSI_RED_BACKGROUND + "Error!" + "\u001B[0m");
             System.out.println("=====================================================");
         }
     }
@@ -253,8 +268,8 @@ public class FinancialTracker {
     private static void ledgerMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println(WHITE_BOLD_BRIGHT+ "Ledger");
-            System.out.println("Choose an option:");
+            System.out.println(CYAN_BOLD_BRIGHT+ "[ ======== [ Ledger ] ======== ]" + "\u001B[0m");
+            System.out.println(WHITE_BOLD_BRIGHT + "Choose an option:");
             System.out.println("A) All");
             System.out.println("D) Deposits");
             System.out.println("P) Payments");
@@ -281,33 +296,63 @@ public class FinancialTracker {
                     break;
                 case "H":
                     running = false;
+                    break;
                 default:
-                    System.out.println("Invalid option");
+                    System.out.println( ANSI_RED_BACKGROUND + "Invalid option" +  "\u001B[0m");
                     break;
             }
         }
     }
 
     private static void displayLedger() {
-        // This method should display a table of all transactions in the `transactions` ArrayList.
-        // The table should have columns for date, time, vendor, type, and amount.
+        // Sort the transactions based on the transaction date in descending order
+        // We use the Collections.sort method to sort the transactions list based on the transaction date.
+        // The custom Comparator compares the dates in reverse order, ensuring that the newest transactions appear at the top.
+        Collections.sort(transactions, new Comparator<Transaction>() {
+            @Override
+            public int compare(Transaction t1, Transaction t2) {
+                // Compare the dates in reverse order to get newest first
+                return t2.getDate().compareTo(t1.getDate());
+            }
+        });
+
+        // Display the sorted transactions in a table
+        System.out.println(CYAN_BOLD_BRIGHT + "[ ========== [All Transactions] ==========] " + "\u001B[0m");
+
+        //Headers and use \t to space the headers out.
+        System.out.println("\t\t\t\tDate\t\t\t\tTime\t\t\t\tType\t\t\t\tVendor\t\t\t\tAmount");
         for (Transaction transaction : transactions) {
             System.out.println(transaction);
         }
     }
-
     private static void displayDeposits() {
         // This method should display a table of all deposits in the `transactions` ArrayList.
         // The table should have columns for date, time, vendor, and amount.
         ArrayList<Transaction> potato = new ArrayList<>();
+
+        //We use the Collections.sort method to sort the transactions list based on the transaction date.
+        // The custom Comparator compares the dates in reverse order, ensuring that the newest transactions appear at the top.
+        Collections.sort(transactions, new Comparator<Transaction>() {
+            @Override
+            public int compare(Transaction t1, Transaction t2) {
+                // Compare the dates in reverse order to get newest first
+                return t2.getDate().compareTo(t1.getDate());
+            }
+        });
+
+        System.out.println(CYAN_BOLD_BRIGHT + "[ ========== [All Deposits] ==========] " + "\u001B[0m");
+
+        //Headers and use \t to space the headers out.
+        System.out.println("\t\t\t\tDate\t\t\t\tTime\t\t\t\tType\t\t\t\tVendor\t\t\t\tAmount");
         for (Transaction transaction : transactions) {
             if (transaction.getPrice() >= 0 ){
                 potato.add(transaction);
             }
         }
 
+        // Error Message
         if(potato.isEmpty()){
-            System.out.println(ANSI_RED_BACKGROUND + WHITE_BOLD_BRIGHT + "Error! There is no deposits found!");
+            System.out.println(ANSI_RED_BACKGROUND + WHITE_BOLD_BRIGHT + "Error! There is no deposits found!" +   "\u001B[0m");
         }else{
             for(Transaction transaction : potato){
                 System.out.println(transaction);
@@ -320,14 +365,30 @@ public class FinancialTracker {
         // The table should have columns for date, time, vendor, and amount.
 
         ArrayList<Transaction> potato = new ArrayList<>();
+        System.out.println(CYAN_BOLD_BRIGHT + "[ ========== [All Payments] ==========] " + "\u001B[0m");
+
+        //Headers and use \t to space the headers out.
+        System.out.println("\t\t\t\tDate\t\t\t\tTime\t\t\t\tType\t\t\t\tVendor\t\t\t\tAmount");
+
+        //We use the Collections.sort method to sort the transactions list based on the transaction date.
+        // The custom Comparator compares the dates in reverse order, ensuring that the newest transactions appear at the top.
+        Collections.sort(transactions, new Comparator<Transaction>() {
+            @Override
+            public int compare(Transaction t1, Transaction t2) {
+                // Compare the dates in reverse order to get newest first
+                return t2.getDate().compareTo(t1.getDate());
+            }
+        });
+
         for (Transaction transaction : transactions) {
             if (transaction.getPrice() <= 0 ){
                 potato.add(transaction);
             }
         }
 
+        // Error Message
         if(potato.isEmpty()){
-            System.out.println(ANSI_RED_BACKGROUND + WHITE_BOLD_BRIGHT + "Error! There is no payments found!");
+            System.out.println(ANSI_RED_BACKGROUND + WHITE_BOLD_BRIGHT + "Error! There is no payments found!" +  "\u001B[0m");
         }else{
             for(Transaction transaction : potato){
                 System.out.println(transaction);
@@ -339,8 +400,8 @@ public class FinancialTracker {
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println(WHITE_BOLD_BRIGHT + "Reports");
-            System.out.println("Choose an option:");
+            System.out.println(CYAN_BOLD_BRIGHT + "[ ======== [ Reports ] ======== ]" + "\u001B[0m");
+            System.out.println(WHITE_BOLD_BRIGHT + "Choose an option:");
             System.out.println("1) Month To Date");
             System.out.println("2) Previous Month");
             System.out.println("3) Year To Date");
@@ -357,6 +418,7 @@ public class FinancialTracker {
                     LocalDate thisMonth = LocalDate.now();
                     System.out.println("Displaying all the transactions for this month of " + thisMonth.getMonth() + ": ");
                     filterTransactionsByDate(thisMonth.withDayOfMonth(1), thisMonth);
+                    System.out.println("=================================================================");
                     break;
                 case "2":
                     // Generate a report for all transactions within the previous month,
@@ -364,6 +426,7 @@ public class FinancialTracker {
                     LocalDate lastMonth = LocalDate.now().minusMonths(1);
                     System.out.println("Displaying all the transactions for this month of " + lastMonth.getMonth() + ": ");
                     filterTransactionsByDate(lastMonth.withDayOfMonth(1), lastMonth.withDayOfMonth(lastMonth.lengthOfMonth()));
+                    System.out.println("=================================================================");
                     break;
                 case "3":
                     // Generate a report for all transactions within the current year,
@@ -371,6 +434,7 @@ public class FinancialTracker {
                     LocalDate thisYear = LocalDate.now();
                     System.out.println("Displaying all transactions for the year of " + thisYear.getYear() + " so far: ");
                     filterTransactionsByDate(thisYear.withDayOfYear(1), thisYear);
+                    System.out.println("=================================================================");
                     break;
                 case "4":
                     // Generate a report for all transactions within the previous year,
@@ -378,18 +442,34 @@ public class FinancialTracker {
                     LocalDate lastYear = LocalDate.now().minusYears(1);
                     System.out.println("Displaying all transactions for the year of " + lastYear.getYear() + ": ");
                     filterTransactionsByDate(lastYear.withMonth(1).withDayOfMonth(1), lastYear.withMonth(12).withDayOfMonth(31));
+                    System.out.println("=================================================================");
                     break;
                 case "5":
                     // Prompt the user to enter the name of the vendor they want to check for
                     System.out.print("Please type the name of the vendor you would like to check for: ");
-                    String vendorName = scanner.nextLine().trim();
-                    filterTransactionsByVendor(vendorName);
+                    String vendorFilter = scanner.nextLine().trim();
+
+                    // Call the filterTransactionsByVendor function and store the result in a variable
+                    ArrayList<Transaction> filteredTransactions = filterTransactionsByVendor(vendorFilter);
+
+                    // Check if there are any matching transactions
+                    if (filteredTransactions.isEmpty()) {
+                        System.out.println("No transactions found for the specified vendor.");
+                    } else {
+                        // Print the filtered transactions
+                        for (Transaction transaction : filteredTransactions) {
+                            System.out.println(transaction); // You can adjust how you want to display the transactions
+                        }
+                    }
+                    System.out.println("=================================================================");
+                    break;
                 case "0":
                     // Exit the program
                     running = false;
+                    break;
                 default:
                     // Handle invalid option
-                    System.out.println(ANSI_RED_BACKGROUND + "Error!");
+                    System.out.println(ANSI_RED_BACKGROUND + "Error!" +  "\u001B[0m");
                     break;
             }
         }
@@ -407,7 +487,7 @@ public class FinancialTracker {
             }
         }
         if (found.isEmpty()) {
-            System.out.println(ANSI_RED_BACKGROUND  + "ERROR!");
+            System.out.println(ANSI_RED_BACKGROUND  + "ERROR!" +  "\u001B[0m");
         } else {
             for (Transaction transaction : found) {
                 System.out.println(transaction);
@@ -415,7 +495,7 @@ public class FinancialTracker {
         }
     }
 
-    private static void filterTransactionsByVendor(String vendor) {
+    private static ArrayList<Transaction> filterTransactionsByVendor(String vendor) {
         // Filter and print transactions for a specified vendor.
         // If no transactions match the vendor name, it prints an error message.
         ArrayList<Transaction> found = new ArrayList<>();
@@ -424,20 +504,23 @@ public class FinancialTracker {
                 found.add(transaction);
             }
         }
+
+        // Error Message
         if (found.isEmpty()) {
-            System.out.println(ANSI_RED_BACKGROUND + "ERROR!");
+            System.out.println(ANSI_RED_BACKGROUND + "ERROR!" +  "\u001B[0m");
         } else {
             for (Transaction transaction : found) {
                 System.out.println(transaction);
             }
         }
+        return found;
     }
     // Helper method to parse user input for date, handling errors
     private static LocalDate parseUserInputDate(String userInput) {
         try {
             return LocalDate.parse(userInput, DATE_FORMATTER);
         } catch (DateTimeParseException ex) {
-            System.out.println("Invalid date format. Using current date instead.");
+            System.out.println(ANSI_RED_BACKGROUND + "Invalid date format. Using current date instead." +  "\u001B[0m");
             return LocalDate.now();
         }
     }
@@ -447,7 +530,7 @@ public class FinancialTracker {
         try {
             return LocalTime.parse(userInput, TIME_FORMATTER);
         } catch (DateTimeParseException ex) {
-            System.out.println("Invalid time format. Using current time instead.");
+            System.out.println(ANSI_RED_BACKGROUND+ "Invalid time format. Using current time instead." +  "\u001B[0m");
             return LocalTime.now();
         }
     }
